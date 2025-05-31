@@ -1,0 +1,359 @@
+:root {
+    --primary-purple: #8A2BE2; /* BlueViolet */
+    --secondary-purple: #9370DB; /* MediumPurple */
+    --light-purple: #E6E6FA; /* Lavender */
+    --accent-pink: #FF69B4; /* HotPink */
+    --accent-yellow: #FFD700; /* Gold */
+    --text-light: #FFFFFF;
+    --text-dark: #333333;
+    --correct-green: #76FF03; /* LimeGreen */
+    --incorrect-red: #FF1744; /* Red A400 */
+    --container-bg: rgba(255, 255, 255, 0.9);
+    --shadow-color: rgba(0, 0, 0, 0.2);
+
+    font-family: 'Nunito', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
+    color: var(--text-dark);
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    overflow: hidden; /* Prevent scrollbars from temporary large elements during animation */
+    -webkit-tap-highlight-color: transparent;
+}
+
+#game-wrapper {
+    background-color: var(--container-bg);
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px var(--shadow-color), 0 0 0 5px var(--light-purple);
+    width: 100%;
+    max-width: 500px;
+    position: relative; /* For screen transitions */
+}
+
+.screen {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.screen.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.game-title, .game-over-title, .leaderboard-title {
+    font-family: 'Fredoka One', cursive;
+    color: var(--primary-purple);
+    font-size: 2.8em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0px var(--light-purple);
+}
+
+.game-logo-placeholder {
+    width: 150px; /* Adjust as needed */
+    height: 150px;
+    background-color: var(--secondary-purple);
+    border-radius: 50%;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 4px solid var(--light-purple);
+}
+.game-logo-placeholder::before {
+    content: "💨?"; /* Placeholder content */
+}
+
+
+/* Game Screen Specifics */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--secondary-purple);
+}
+#lives-display span {
+    color: var(--accent-pink);
+    letter-spacing: 2px; /* Spreads out the hearts */
+}
+
+
+#characters-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.character {
+    position: relative;
+    background-color: var(--light-purple);
+    border: 4px solid var(--secondary-purple);
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease-out;
+    aspect-ratio: 1 / 1; /* Make characters square */
+}
+
+.character:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 15px var(--accent-pink);
+}
+
+.character img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the square area */
+    display: block;
+}
+
+.character.selected {
+    border-color: var(--accent-yellow);
+    box-shadow: 0 0 20px var(--accent-yellow);
+    transform: scale(1.1);
+}
+
+.character .reveal-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em; /* Larger emoji */
+    color: white;
+    font-weight: bold;
+    border-radius: 10px; /* Match parent's inner radius */
+    animation: popIn 0.3s ease-out;
+}
+
+.character.correct .reveal-overlay {
+    background-color: rgba(118, 255, 3, 0.7); /* correct-green with alpha */
+}
+.character.correct .reveal-overlay::after {
+    content: "🎯"; /* Target emoji for correct */
+}
+
+.character.incorrect .reveal-overlay {
+    background-color: rgba(255, 23, 68, 0.7); /* incorrect-red with alpha */
+}
+.character.incorrect .reveal-overlay::after {
+    content: "💨❓"; /* Fart and question mark for incorrect farter */
+}
+.character.incorrect-guess .reveal-overlay { /* Specific for the one clicked that was wrong */
+     background-color: rgba(255, 23, 68, 0.7);
+}
+.character.incorrect-guess .reveal-overlay::after {
+    content: "🙈"; /* Facepalm for wrong guess */
+}
+
+
+/* Buttons */
+.game-button {
+    background: linear-gradient(145deg, var(--primary-purple), var(--secondary-purple));
+    color: var(--text-light);
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    font-family: 'Fredoka One', cursive;
+    border-radius: 50px; /* Very rounded */
+    cursor: pointer;
+    transition: transform 0.1s ease-out, box-shadow 0.2s ease-out;
+    margin: 10px 5px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 0 darken(var(--secondary-purple), 10%), 0 6px 10px var(--shadow-color); /* 3D effect */
+}
+.game-button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 0 darken(var(--secondary-purple), 10%), 0 8px 15px var(--shadow-color);
+}
+.game-button:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 2px 0 darken(var(--secondary-purple), 10%), 0 4px 5px var(--shadow-color);
+}
+.game-button.secondary {
+    background: linear-gradient(145deg, var(--accent-pink), lighten(var(--accent-pink), 10%));
+    box-shadow: 0 4px 0 darken(var(--accent-pink), 10%), 0 6px 10px var(--shadow-color);
+}
+.game-button.secondary:hover {
+    box-shadow: 0 6px 0 darken(var(--accent-pink), 10%), 0 8px 15px var(--shadow-color);
+}
+.game-button.secondary:active {
+    box-shadow: 0 2px 0 darken(var(--accent-pink), 10%), 0 4px 5px var(--shadow-color);
+}
+
+
+.game-button.large-button {
+    padding: 15px 30px;
+    font-size: 1.5em;
+}
+.game-button.large-button svg {
+    vertical-align: middle;
+    margin-right: 8px;
+    width: 28px;
+    height: 28px;
+}
+
+
+#instruction-text {
+    margin-top: 15px;
+    font-size: 1em;
+    color: var(--secondary-purple);
+    font-weight: bold;
+    min-height: 1.2em;
+}
+
+#result-text {
+    margin-top: 10px;
+    font-size: 1.3em;
+    font-weight: bold;
+    min-height: 1.5em; /* Prevent layout jump */
+    font-family: 'Fredoka One', cursive;
+}
+
+/* Game Over Screen */
+#final-score-text {
+    font-size: 1.5em;
+    margin: 15px 0;
+    color: var(--primary-purple);
+}
+#name-input-container {
+    margin: 20px 0;
+    display: flex; /* Use flex for easier alignment */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+}
+#name-input-container p {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: var(--secondary-purple);
+}
+#player-name-input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid var(--secondary-purple);
+    font-size: 1.2em;
+    text-align: center;
+    width: 150px; /* Or max-width as appropriate */
+    margin-bottom: 10px; /* Space before submit button */
+}
+#player-name-input:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 8px var(--accent-pink);
+}
+
+/* Leaderboard Screen */
+#leaderboard-list {
+    list-style-type: none;
+    padding: 0;
+    width: 80%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+#leaderboard-list li {
+    background-color: var(--light-purple);
+    color: var(--text-dark);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+#leaderboard-list li .rank {
+    font-weight: bold;
+    color: var(--primary-purple);
+    margin-right: 10px;
+}
+#leaderboard-list li .name {
+    flex-grow: 1;
+    text-align: left;
+}
+#leaderboard-list li .score {
+    font-weight: bold;
+    color: var(--accent-pink);
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+/* Animation for character reveal - a little wiggle */
+@keyframes wiggle {
+    0%, 100% { transform: rotate(-2deg) scale(1.1); }
+    50% { transform: rotate(2deg) scale(1.1); }
+}
+.character.correct.revealed {
+    animation: wiggle 0.5s ease-in-out 2; /* Play wiggle twice */
+}
+
+/* Stink Puff SVG Placeholder - we'll animate this later */
+.stink-puff {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    /* background: green; Placeholder */
+    opacity: 0;
+    /* animation: puff-out 1s ease-out forwards; */
+    /* More complex SVG animation later */
+}
+
+/* Mobile responsiveness adjustments */
+@media (max-width: 400px) {
+    body {
+        padding: 5px;
+    }
+    #game-wrapper {
+        padding: 15px;
+        border-radius: 20px;
+    }
+    .game-title, .game-over-title, .leaderboard-title {
+        font-size: 2.2em;
+    }
+    #characters-container {
+        gap: 10px;
+    }
+    .game-button {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+    .game-button.large-button {
+        padding: 12px 25px;
+        font-size: 1.2em;
+    }
+    .game-button.large-button svg {
+        width: 20px;
+        height: 20px;
+    }
+    #player-name-input {
+        width: 80%;
+    }
+}
